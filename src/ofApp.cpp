@@ -34,7 +34,11 @@ void ofApp::setup(){
 	windowBottomRight = ofVec3f(+windowWidth / 2.0f,
 		-windowHeight / 2.0f,
 		0.0f);
-
+	//calibration
+	bdrawCalib = false;
+	calibDone = false;
+	calibStep = 0;
+	screenNormal.set(0, 0, 1);
 	
 }
 
@@ -123,7 +127,7 @@ void ofApp::drawScene(bool isPreview) {
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofBackgroundGradient(ofColor(50), ofColor(0));
+	/*ofBackgroundGradient(ofColor(50), ofColor(0));
 	//------
 	//draw the scene
 	//
@@ -143,7 +147,7 @@ void ofApp::draw(){
 		headTrackedCamera.end();
 	}
 
-	kinect.getColorSource()->draw(0, 0, 320, 240);
+	
 
 	stringstream message;
 	message << "[SPACE] = User preview camera [" << (usePreview ? 'x' : ' ') << "]";
@@ -161,7 +165,15 @@ void ofApp::draw(){
 		headTrackedCamera.begin(bottomLeft);
 		drawScene(false);
 		headTrackedCamera.end();
+	}*/
+	if (bdrawCalib) {
+		ofSetBackgroundAuto(false);
+		drawCalib();
+	} else {
+		ofSetBackgroundAuto(true);
+	kinect.getColorSource()->draw(ofGetWindowWidth() - 320, 0, 320, 240);
 	}
+
 }
 
 ofVec3f ofApp::getHeadPos() {
@@ -188,6 +200,55 @@ ofVec3f ofApp::getHeadPos() {
 	return headPos;
 }
 
+//calibration
+
+bool ofApp::needsCalib() {
+	return !calibDone;
+}
+
+void ofApp::resetCalib() {
+	calibStep = 0;
+	calibDone = false;
+}
+
+void ofApp::drawCalib() {
+	kinect.update();
+	if (kinect.isFrameNew()) {
+		ofPushStyle();
+		ofBackground(0, 0, 0);
+			ofSetColor(255, 255, 255);
+		ofFill();
+		int rad = 30;
+		const int a = 0;
+		const int b = 1;
+		const int c = 3;
+		int circlX;
+		int circlY;
+		switch (calibStep % 3)
+		{
+		case a:
+			circlX = 0;
+			circlY = 0;
+			break;
+		case b:
+			circlX = 0;
+			circlY = ofGetWindowHeight();
+			break;
+		case c:
+			circlX = ofGetWindowWidth();
+			circlY = ofGetWindowHeight();
+			break;
+		default:
+			break;
+		}
+		ofPushStyle();
+		ofSetColor(255, 0, 0);
+		ofCircle(circlX, circlY, rad);
+		ofPopStyle();
+		ofPopStyle();
+	}
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
@@ -210,7 +271,7 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+	bdrawCalib = !bdrawCalib;
 }
 
 //--------------------------------------------------------------

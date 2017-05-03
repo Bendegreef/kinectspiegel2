@@ -4,6 +4,9 @@
 #include "ofxKinectForWindows2.h"
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
+#include "ofxRay.h"
+
+#define CALIBRATION_STEPS 12
 
 class ofApp : public ofBaseApp{
 
@@ -40,5 +43,36 @@ class ofApp : public ofBaseApp{
 		deque<ofPoint> headPositionHistory;
 
 		ofVboMesh window;
+
+		//calibration
+
+		//void portalCamBegin();
+		//void portalCamEnd();
+
+		void drawCalib();
+		//void createCalibRay();
+
+		bool needsCalib();
+		//ofVec3f screenify(ofVec3f kinectPoint);
+
+		//void tweakOrientation();
+
+		bool bdrawCalib;
+		void resetCalib();
+		bool calibDone;
+		int calibStep;
+		//void calcCalib();
+		ofRay calibRays[CALIBRATION_STEPS];
+
+		ofVec3f displaceFactor;
+		float scaleFactor;
+		ofVec3f rotation1Perp;
+		float rotation1;
+		ofVec3f rotation2Perp;
+		float rotation2;
+		ofVec3f tweakPerp;
+		float tweakAngle;
+
+		ofVec3f screenNormal;
 		
 };
