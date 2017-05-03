@@ -25,8 +25,10 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+		ofVec3f getHeadPos();
+
 		ofxKFW2::Device kinect;
-		ofVec3f headPos, windowTopLeft, windowBottomLeft, windowBottomRight;
+		ofVec3f windowTopLeft, windowBottomLeft, windowBottomRight;
 		ofCamera headTrackedCamera;
 		ofEasyCam previewCamera;
 

@@ -40,25 +40,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	kinect.update();
-	{
-		auto bodies = kinect.getBodySource()->getBodies();
-		for (auto body : bodies) {
-			for (auto joint : body.joints) {
-			}
-		}
-	}
-	{
-		auto bodies = kinect.getBodySource()->getBodies();
-		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
-
-		for (auto body : bodies) {
-			if (body.tracked) {
-				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
-				headPos = body.joints[JointType_Head].getPositionInWorld();
-			}
-		}
-	}
+	ofVec3f headPos = getHeadPos();
 	headPos.x = -headPos.x;
 	headPos.y = -headPos.y;
 	headPositionHistory.push_back(headPos);
@@ -180,6 +162,30 @@ void ofApp::draw(){
 		drawScene(false);
 		headTrackedCamera.end();
 	}
+}
+
+ofVec3f ofApp::getHeadPos() {
+	kinect.update();
+	ofVec3f headPos;
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+			}
+		}
+	}
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			if (body.tracked) {
+				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
+				headPos = body.joints[JointType_Head].getPositionInWorld();
+			}
+		}
+	}
+	return headPos;
 }
 
 //--------------------------------------------------------------
