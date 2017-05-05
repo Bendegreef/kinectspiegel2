@@ -25,7 +25,7 @@ void ofApp::setup(){
 	windowWidth = 0.3f;
 	windowHeight = 0.2f;
 
-	windowTopLeft = ofVec3f(-windowWidth,
+	windowTopLeft = ofVec3f(-windowWidth /2.0f,
 		+windowHeight / 2.0f,
 		0.0f);
 	windowBottomLeft = ofVec3f(-windowWidth / 2.0f,
