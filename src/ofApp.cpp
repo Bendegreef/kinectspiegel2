@@ -237,6 +237,8 @@ void ofApp::draw(){
 		ofPopStyle();
 		ofPopMatrix();
 		licht.enable();
+		ofVec3f headPos = getHeadPos();
+		ofSphere(headPos.x, headPos.y, headPos.z, 20);
 		// Sphere for hand -- note, kinect defines the body backwards... "LeftHand" refers to the users right : P
 		/*ofVec3f rHandPos = screenify(getHandPos());
 		ofSphere(rHandPos, 100);*/
