@@ -75,5 +75,7 @@ class ofApp : public ofBaseApp{
 		float tweakAngle;
 
 		ofVec3f screenNormal;
+		ofLight licht;
+
 		
 };

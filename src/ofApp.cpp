@@ -39,7 +39,8 @@ void ofApp::setup(){
 	calibDone = false;
 	calibStep = 0;
 	screenNormal.set(0, 0, 1);
-	
+	licht.setDiffuseColor(ofColor(30.f, 255.f, 100.f));
+	licht.setPosition(50, 30, 50);
 }
 
 //--------------------------------------------------------------
@@ -235,7 +236,7 @@ void ofApp::draw(){
 		ofBox(0, 0, 0, (4 * 12 * 95));
 		ofPopStyle();
 		ofPopMatrix();
-
+		licht.enable();
 		// Sphere for hand -- note, kinect defines the body backwards... "LeftHand" refers to the users right : P
 		/*ofVec3f rHandPos = screenify(getHandPos());
 		ofSphere(rHandPos, 100);*/
