@@ -426,6 +426,8 @@ ofVec3f ofApp::screenify(ofVec3f kinectPoint) {
 void ofApp::portalCamBegin() {
 	kinect.update();
 	ofVec3f screenHead = screenify(getHeadPos());
+	screenHead.x = -screenHead.x;
+	screenHead.y = -screenHead.y;
 	myOfCamera.setPosition(screenHead);
 	ofVec3f topLeft, bottomLeft, bottomRight;
 	topLeft.set(-ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 0);
