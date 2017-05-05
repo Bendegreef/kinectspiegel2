@@ -29,11 +29,12 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		ofVec3f getHeadPos();
+		ofVec3f getHandPos();
 
 		ofxKFW2::Device kinect;
 		ofVec3f windowTopLeft, windowBottomLeft, windowBottomRight;
 		ofCamera headTrackedCamera;
-		ofEasyCam previewCamera;
+		//ofEasyCam previewCamera;
 
 		bool usePreview;
 		float windowWidth;
@@ -41,27 +42,27 @@ class ofApp : public ofBaseApp{
 		float viewerDistance;
 
 		deque<ofPoint> headPositionHistory;
-
+		ofCamera myOfCamera;
 		ofVboMesh window;
 
 		//calibration
 
-		//void portalCamBegin();
+		void portalCamBegin();
 		//void portalCamEnd();
 
 		void drawCalib();
-		//void createCalibRay();
+		void createCalibRay();
 
 		bool needsCalib();
-		//ofVec3f screenify(ofVec3f kinectPoint);
+		ofVec3f screenify(ofVec3f kinectPoint);
 
-		//void tweakOrientation();
+		void tweakOrientation();
 
 		bool bdrawCalib;
 		void resetCalib();
 		bool calibDone;
 		int calibStep;
-		//void calcCalib();
+		void calcCalib();
 		ofRay calibRays[CALIBRATION_STEPS];
 
 		ofVec3f displaceFactor;
