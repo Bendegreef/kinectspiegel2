@@ -41,24 +41,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 	kinect.update();
-	{
-		auto bodies = kinect.getBodySource()->getBodies();
-		for (auto body : bodies) {
-			for (auto joint : body.joints) {
-			}
-		}
-	}
-	{
-		auto bodies = kinect.getBodySource()->getBodies();
-		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
-
-		for (auto body : bodies) {
-			if (body.tracked) {
-				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
-				headPos = body.joints[JointType_Head].getPositionInWorld();
-			}
-		}
-	}
+	ofVec3f headPos = getHeadPos();
 	headPos.x = -headPos.x;
 	headPos.y = -headPos.y;
 	headPositionHistory.push_back(headPos);
@@ -116,6 +99,25 @@ void ofApp::drawScene(bool isPreview) {
 	}
 
 	ofPushStyle();
+	ofVec3f headPos = getHeadPos();
+	ofVec3f headPosDepth = getHeadPosDepthMap();
+	headPos.z = -headPos.z;
+	headPos.x = -headPos.x;
+	//headPos.y = -headPos.y;
+	ofSphere(headPos, 0.01);
+	ofDrawBitmapString("x: " + ofToString(roundf(headPos.x * 100) / 100) + " y: " + ofToString(roundf(headPos.y * 100) / 100) + " z: " + ofToString(roundf(headPos.z * 100) / 100), headPos - ofVec3f(0.02, 0.02, 0.02));
+	ofVec3f shLPos = getLeftShoulder();
+	ofSetColor(255, 0, 0);
+	shLPos.z = -shLPos.z;
+	shLPos.x = -shLPos.x;
+	//shLPos.y = -shLPos.y;
+	ofSphere(shLPos, 0.01);
+	ofVec3f shRPos = getRightShoulder();
+	ofSetColor(0, 255, 0);
+	shRPos.z = -shRPos.z;
+	shRPos.x = -shRPos.x;
+	//shRPos.y = -shRPos.y;
+	ofSphere(shRPos, 0.01);
 	ofNoFill();
 	ofColor col(200, 100, 100);
 	for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
@@ -123,9 +125,6 @@ void ofApp::drawScene(bool isPreview) {
 		ofSetColor(col);
 		ofDrawRectangle(-windowWidth / 2.0f, -windowHeight / 2.0f, z, windowWidth, windowHeight);
 	}
-	ofPopStyle();
-
-	ofPushStyle();
 	ofEnableSmoothing();
 	ofSetColor(255);
 	ofSetLineWidth(5.0f);
@@ -136,8 +135,10 @@ void ofApp::drawScene(bool isPreview) {
 	}
 	ofEndShape(false);
 	ofPopStyle();
-
+	
 	ofDisableDepthTest();
+	ofVec3f headTrackedCameraPos = headTrackedCamera.getPosition();
+	ofDrawBitmapString("x: " + ofToString(roundf(headTrackedCameraPos.x * 100) / 100) + " y: " + ofToString(roundf(headTrackedCameraPos.y * 100) / 100) + " z: " + ofToString(roundf(headTrackedCameraPos.z * 100) / 100), headTrackedCamera.getPosition() - ofVec3f(0.02, 0.02, 0.02));
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -161,12 +162,13 @@ void ofApp::draw(){
 		headTrackedCamera.end();
 	}
 
-	kinect.getColorSource()->draw(0, 0, 320, 240);
+	//kinect.getColorSource()->draw(0, 0, 320, 240);
+	
 
 	stringstream message;
 	message << "[SPACE] = User preview camera [" << (usePreview ? 'x' : ' ') << "]";
 
-	//ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
+	ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
 
 	if (usePreview) {
 		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f);
@@ -182,6 +184,102 @@ void ofApp::draw(){
 	}
 }
 
+ofVec3f ofApp::getHeadPos() {
+	kinect.update();
+	ofVec3f headPos;
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+			}
+		}
+	}
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			if (body.tracked) {
+				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
+				headPos = body.joints[JointType_Head].getPosition();
+			}
+		}
+	}
+	return headPos;
+}
+
+ofVec3f ofApp::getHeadPosDepthMap() {
+	kinect.update();
+	ofVec3f headPos;
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+			}
+		}
+	}
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			if (body.tracked) {
+				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
+				headPos = body.joints[JointType_Head].getPositionInDepthMap();
+			}
+		}
+	}
+	return headPos;
+}
+
+ofVec3f ofApp::getLeftShoulder() {
+	kinect.update();
+	ofVec3f lShoulderPos;
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+			}
+		}
+	}
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			if (body.tracked) {
+				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
+				lShoulderPos = body.joints[JointType_ShoulderLeft].getPosition();
+			}
+		}
+	}
+	return lShoulderPos;
+}
+
+ofVec3f ofApp::getRightShoulder() {
+	kinect.update();
+	ofVec3f rShoulderPos;
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		for (auto body : bodies) {
+			for (auto joint : body.joints) {
+			}
+		}
+	}
+	{
+		auto bodies = kinect.getBodySource()->getBodies();
+		auto boneAtles = ofxKinectForWindows2::Data::Body::getBonesAtlas();
+
+		for (auto body : bodies) {
+			if (body.tracked) {
+				//https://forum.openframeworks.cc/t/joint-position-and-orientation-ofxkinectforwindows2/20140/4
+				rShoulderPos = body.joints[JointType_ShoulderRight].getPosition();
+			}
+		}
+	}
+	return rShoulderPos;
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
@@ -189,7 +287,9 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+	if (key = ' ') {
+		usePreview = !usePreview;
+	}
 }
 
 //--------------------------------------------------------------

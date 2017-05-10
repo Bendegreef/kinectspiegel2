@@ -38,5 +38,9 @@ class ofApp : public ofBaseApp{
 		deque<ofPoint> headPositionHistory;
 
 		ofVboMesh window;
+		ofVec3f getHeadPos();
+		ofVec3f getHeadPosDepthMap();
+		ofVec3f getLeftShoulder();
+		ofVec3f getRightShoulder();
 		
 };
