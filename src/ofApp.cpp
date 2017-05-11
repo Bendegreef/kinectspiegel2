@@ -10,7 +10,7 @@ void ofApp::setup(){
 	kinect.initDepthSource();
 	ofEnableSmoothing();
 	ofSetVerticalSync(true);
-
+	offset = 0.38;
 	usePreview = false;
 
 	previewCamera.setDistance(3.0f);
@@ -41,15 +41,21 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 	kinect.update();
-	ofVec3f headPos = getHeadPos();
-	headPos.x = -headPos.x;
-	headPos.y = -headPos.y;
-	headPositionHistory.push_back(headPos);
+	ofVec3f headPosCamera = getHeadPos();
+	//headPos.x = -headPos.x;
+	headPosCamera.y -= offset;
+	headPosRefl = getHeadPos();
+	headPosRefl.z = -headPosRefl.z;
+	//headPosRefl.x = -headPosRefl.x;
+	headPosRefl.y -= offset;
+	headPosScreen.set((headPos.x + headPosRefl.x) / 2, (headPos.y + headPosRefl.y) /2, 0);
+	headPositionHistory.push_back(headPosCamera);
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
 	}
-
-	headTrackedCamera.setPosition(headPos);
+	headPosCamera.x = -headPosCamera.x;
+	//headPosCamera.y = -headPosCamera.y;
+	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
 }
 
@@ -101,6 +107,8 @@ void ofApp::drawScene(bool isPreview) {
 	ofPushStyle();
 	ofVec3f headPos = getHeadPos();
 	ofVec3f headPosDepth = getHeadPosDepthMap();
+	ofSphere(headPosScreen, 0.01);
+	ofDrawBitmapString("x: " + ofToString(roundf(headPosScreen.x * 100) / 100) + " y: " + ofToString(roundf(headPosScreen.y * 100) / 100) + " z: " + ofToString(roundf(headPosScreen.z * 100) / 100), headPosScreen - ofVec3f(0.02, 0.02, 0.02));
 	headPos.z = -headPos.z;
 	headPos.x = -headPos.x;
 	//headPos.y = -headPos.y;
@@ -171,7 +179,7 @@ void ofApp::draw(){
 	ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
 
 	if (usePreview) {
-		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f);
+		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f); 
 
 		ofPushStyle();
 		ofSetColor(0);
@@ -289,6 +297,9 @@ void ofApp::keyPressed(int key){
 void ofApp::keyReleased(int key){
 	if (key = ' ') {
 		usePreview = !usePreview;
+	}
+	if (key = 'y') {
+		yOffset += 0.1;
 	}
 }
 

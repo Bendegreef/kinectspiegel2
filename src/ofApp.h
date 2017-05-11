@@ -34,6 +34,7 @@ class ofApp : public ofBaseApp{
 		float windowWidth;
 		float windowHeight;
 		float viewerDistance;
+		float offset;
 
 		deque<ofPoint> headPositionHistory;
 
@@ -42,5 +43,10 @@ class ofApp : public ofBaseApp{
 		ofVec3f getHeadPosDepthMap();
 		ofVec3f getLeftShoulder();
 		ofVec3f getRightShoulder();
+		ofVec3f headPosScreen;
+		ofVec3f headPosRefl;
+		ofVec3f headPosCamera;
+
+		float yOffset;
 		
 };
