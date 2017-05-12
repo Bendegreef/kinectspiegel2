@@ -3,7 +3,7 @@
 using namespace ofxCv;
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
 	kinect.open();
 	kinect.initColorSource();
 	kinect.initBodySource();
@@ -25,7 +25,7 @@ void ofApp::setup(){
 	windowWidth = 0.3f;
 	windowHeight = 0.2f;
 
-	windowTopLeft = ofVec3f(-windowWidth /2.0f,
+	windowTopLeft = ofVec3f(-windowWidth / 2.0f,
 		+windowHeight / 2.0f,
 		0.0f);
 	windowBottomLeft = ofVec3f(-windowWidth / 2.0f,
@@ -35,11 +35,11 @@ void ofApp::setup(){
 		-windowHeight / 2.0f,
 		0.0f);
 
-	
+
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
 	kinect.update();
 	ofVec3f headPosCamera = getHeadPos();
 	//headPos.x = -headPos.x;
@@ -48,7 +48,7 @@ void ofApp::update(){
 	headPosRefl.z = -headPosRefl.z;
 	//headPosRefl.x = -headPosRefl.x;
 	headPosRefl.y -= offset;
-	headPosScreen.set((headPos.x + headPosRefl.x) / 2, (headPos.y + headPosRefl.y) /2, 0);
+	headPosScreen.set((headPos.x + headPosRefl.x) / 2, (headPos.y + headPosRefl.y) / 2, 0);
 	headPositionHistory.push_back(headPosCamera);
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
@@ -143,13 +143,13 @@ void ofApp::drawScene(bool isPreview) {
 	}
 	ofEndShape(false);
 	ofPopStyle();
-	
+
 	ofDisableDepthTest();
 	ofVec3f headTrackedCameraPos = headTrackedCamera.getPosition();
 	ofDrawBitmapString("x: " + ofToString(roundf(headTrackedCameraPos.x * 100) / 100) + " y: " + ofToString(roundf(headTrackedCameraPos.y * 100) / 100) + " z: " + ofToString(roundf(headTrackedCameraPos.z * 100) / 100), headTrackedCamera.getPosition() - ofVec3f(0.02, 0.02, 0.02));
 }
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw() {
 	ofBackgroundGradient(ofColor(50), ofColor(0));
 	//------
 	//draw the scene
@@ -171,7 +171,7 @@ void ofApp::draw(){
 	}
 
 	//kinect.getColorSource()->draw(0, 0, 320, 240);
-	
+
 
 	stringstream message;
 	message << "[SPACE] = User preview camera [" << (usePreview ? 'x' : ' ') << "]";
@@ -179,7 +179,7 @@ void ofApp::draw(){
 	ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
 
 	if (usePreview) {
-		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f); 
+		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f);
 
 		ofPushStyle();
 		ofSetColor(0);
@@ -289,61 +289,61 @@ ofVec3f ofApp::getRightShoulder() {
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::keyReleased(int key){
+void ofApp::keyReleased(int key) {
 	if (key = ' ') {
 		usePreview = !usePreview;
 	}
 	if (key = 'y') {
-		yOffset += 0.1;
+		//yOffset += 0.1;
 	}
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
+void ofApp::mouseMoved(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
+void ofApp::mouseDragged(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
+void ofApp::mousePressed(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
+void ofApp::mouseReleased(int x, int y, int button) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
+void ofApp::mouseEntered(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
+void ofApp::mouseExited(int x, int y) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
+void ofApp::windowResized(int w, int h) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
+void ofApp::gotMessage(ofMessage msg) {
 
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
