@@ -41,20 +41,24 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 	kinect.update();
+
+
 	ofVec3f headPosCamera = getHeadPos();
-	//headPos.x = -headPos.x;
 	headPosCamera.y -= offset;
-	headPosRefl = getHeadPos();
-	headPosRefl.z = -headPosRefl.z;
-	//headPosRefl.x = -headPosRefl.x;
-	headPosRefl.y -= offset;
-	headPosScreen.set((headPos.x + headPosRefl.x) / 2, (headPos.y + headPosRefl.y) / 2, 0);
+	headPosRefl = calcRefl(getHeadPos());
+	headPosScreen = calcScreen(headPos, headPosRefl);
 	headPositionHistory.push_back(headPosCamera);
+
+	lShPos = getLeftShoulder();
+	//lShPos.y -= offset;
+	lShPosRefl = calcRefl(lShPos);
+	lShPosScreen = calcScreen(headPos, lShPosRefl);
+
+
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
 	}
-	headPosCamera.x = -headPosCamera.x;
-	//headPosCamera.y = -headPosCamera.y;
+	//headPosCamera.x = -headPosCamera.x;
 	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
 }
@@ -105,26 +109,20 @@ void ofApp::drawScene(bool isPreview) {
 	}
 
 	ofPushStyle();
-	ofVec3f headPos = getHeadPos();
-	ofVec3f headPosDepth = getHeadPosDepthMap();
+
+	drawCoordinates(headTrackedCamera.getPosition());
+	ofSphere(headPosRefl, 0.01);
+	drawCoordinates(headPosRefl);
 	ofSphere(headPosScreen, 0.01);
-	ofDrawBitmapString("x: " + ofToString(roundf(headPosScreen.x * 100) / 100) + " y: " + ofToString(roundf(headPosScreen.y * 100) / 100) + " z: " + ofToString(roundf(headPosScreen.z * 100) / 100), headPosScreen - ofVec3f(0.02, 0.02, 0.02));
-	headPos.z = -headPos.z;
-	headPos.x = -headPos.x;
-	//headPos.y = -headPos.y;
-	ofSphere(headPos, 0.01);
-	ofDrawBitmapString("x: " + ofToString(roundf(headPos.x * 100) / 100) + " y: " + ofToString(roundf(headPos.y * 100) / 100) + " z: " + ofToString(roundf(headPos.z * 100) / 100), headPos - ofVec3f(0.02, 0.02, 0.02));
-	ofVec3f shLPos = getLeftShoulder();
+	drawCoordinates(headPosScreen);
+
+	
 	ofSetColor(255, 0, 0);
-	shLPos.z = -shLPos.z;
-	shLPos.x = -shLPos.x;
-	//shLPos.y = -shLPos.y;
-	ofSphere(shLPos, 0.01);
+	ofSphere(lShPosScreen, 0.01);
 	ofVec3f shRPos = getRightShoulder();
 	ofSetColor(0, 255, 0);
 	shRPos.z = -shRPos.z;
 	shRPos.x = -shRPos.x;
-	//shRPos.y = -shRPos.y;
 	ofSphere(shRPos, 0.01);
 	ofNoFill();
 	ofColor col(200, 100, 100);
@@ -137,16 +135,15 @@ void ofApp::drawScene(bool isPreview) {
 	ofSetColor(255);
 	ofSetLineWidth(5.0f);
 	ofBeginShape();
-	for (unsigned int i = 0; i<headPositionHistory.size(); i++) {
+	for (unsigned int i = 0; i < headPositionHistory.size(); i++) {
 		ofPoint vertex(headPositionHistory[i].x, headPositionHistory[i].y, -float(headPositionHistory.size() - i) * 0.05f);
 		ofCurveVertex(vertex);
 	}
 	ofEndShape(false);
 	ofPopStyle();
-
+	
 	ofDisableDepthTest();
-	ofVec3f headTrackedCameraPos = headTrackedCamera.getPosition();
-	ofDrawBitmapString("x: " + ofToString(roundf(headTrackedCameraPos.x * 100) / 100) + " y: " + ofToString(roundf(headTrackedCameraPos.y * 100) / 100) + " z: " + ofToString(roundf(headTrackedCameraPos.z * 100) / 100), headTrackedCamera.getPosition() - ofVec3f(0.02, 0.02, 0.02));
+	
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -301,6 +298,21 @@ void ofApp::keyReleased(int key) {
 	if (key = 'y') {
 		//yOffset += 0.1;
 	}
+}
+
+void ofApp::drawCoordinates(ofVec3f point) {
+	ofDrawBitmapString("x: " + ofToString(roundf(point.x * 100) / 100) + " y: " + ofToString(roundf(point.y * 100) / 100) + " z: " + ofToString(roundf(point.z * 100) / 100), point - ofVec3f(0.02, 0.02, 0.02));
+}
+
+ofVec3f ofApp::calcRefl(ofVec3f input) {
+	input.z = -input.z;
+	input.y -= offset;
+	return input;
+}
+
+ofVec3f ofApp::calcScreen(ofVec3f eyes, ofVec3f refl) {
+	ofVec3f output((eyes.x + refl.x) / 2, (eyes.y + refl.y) / 2, 0);
+	return output;
 }
 
 //--------------------------------------------------------------

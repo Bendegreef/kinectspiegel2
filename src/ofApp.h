@@ -48,11 +48,13 @@ class ofApp : public ofBaseApp{
 		ofVec3f headPosCamera;
 		ofVec3f lShPosScreen;
 		ofVec3f lShPosRefl;
+		ofVec3f lShPos;
 		ofVec3f rShPosScreen;
 		ofVec3f rShPosRefl;
+		ofVec3f rShPos;
 
-		//void drawCoordinates(ofVec3f point);
-		//ofVec3f calcScreen(ofVec3f eyes, ofVec3f reflection);
-		//ofVec3f calcRefl(ofVec3f point);
+		void drawCoordinates(ofVec3f point);
+		ofVec3f calcScreen(ofVec3f eyes, ofVec3f reflection);
+		ofVec3f calcRefl(ofVec3f point);
 		
 };
