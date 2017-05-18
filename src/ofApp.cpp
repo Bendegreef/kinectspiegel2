@@ -10,7 +10,7 @@ void ofApp::setup() {
 	kinect.initDepthSource();
 	ofEnableSmoothing();
 	ofSetVerticalSync(true);
-	offset = 0.38;
+	//offset = -0.24;
 	usePreview = false;
 
 	previewCamera.setDistance(3.0f);
@@ -35,6 +35,10 @@ void ofApp::setup() {
 		-windowHeight / 2.0f,
 		0.0f);
 
+	gui.setup();
+	gui.add(yOffsetSlider.setup("yOffset", -0.15, -0.5, 0.5));
+	gui.add(xOffsetSlider.setup("xOffset", 0, -0.5, 0.5));
+	gui.add(scalar.setup("scale", 1, 0.5, 1.5));
 
 }
 
@@ -44,15 +48,21 @@ void ofApp::update() {
 
 
 	ofVec3f headPosCamera = getHeadPos();
-	headPosCamera.y -= offset;
+	headPosCamera.y -= yOffsetSlider;
+	headPosCamera.x -= xOffsetSlider;
 	headPosRefl = calcRefl(getHeadPos());
 	headPosScreen = calcScreen(headPos, headPosRefl);
 	headPositionHistory.push_back(headPosCamera);
 
 	lShPos = getLeftShoulder();
-	//lShPos.y -= offset;
 	lShPosRefl = calcRefl(lShPos);
 	lShPosScreen = calcScreen(headPos, lShPosRefl);
+	lShPosScreen = scaleOnScreen(headPosScreen, lShPosScreen);
+
+	rShPos = getRightShoulder();
+	rShPosRefl = calcRefl(rShPos);
+	rShPosScreen = calcScreen(headPos, rShPosRefl);
+	rShPosScreen = scaleOnScreen(headPosScreen, rShPosScreen);
 
 
 	while (headPositionHistory.size() > 50.0f) {
@@ -119,11 +129,8 @@ void ofApp::drawScene(bool isPreview) {
 	
 	ofSetColor(255, 0, 0);
 	ofSphere(lShPosScreen, 0.01);
-	ofVec3f shRPos = getRightShoulder();
 	ofSetColor(0, 255, 0);
-	shRPos.z = -shRPos.z;
-	shRPos.x = -shRPos.x;
-	ofSphere(shRPos, 0.01);
+	ofSphere(rShPosScreen, 0.01);
 	ofNoFill();
 	ofColor col(200, 100, 100);
 	for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
@@ -187,6 +194,7 @@ void ofApp::draw() {
 		drawScene(false);
 		headTrackedCamera.end();
 	}
+	gui.draw();
 }
 
 ofVec3f ofApp::getHeadPos() {
@@ -306,7 +314,8 @@ void ofApp::drawCoordinates(ofVec3f point) {
 
 ofVec3f ofApp::calcRefl(ofVec3f input) {
 	input.z = -input.z;
-	input.y -= offset;
+	input.y -= yOffsetSlider;
+	input.x -= xOffsetSlider;
 	return input;
 }
 
@@ -315,6 +324,21 @@ ofVec3f ofApp::calcScreen(ofVec3f eyes, ofVec3f refl) {
 	return output;
 }
 
+ofVec3f ofApp::scaleOnScreen(ofVec3f eyes, ofVec3f bodypoint) {
+	auto p = bodypoint - eyes;
+	float length = p.length();
+	length *= scalar;
+	p.normalize();
+	p *= length;
+	//p.scale(1.0f);
+	p += eyes;
+	return p;
+	//return (bodypoint - eyes).getScaled(1.0) + eyes;
+	//return bodypoint;
+	//ofVec3f p3 = eyes - bodypoint;
+	//p3.scale(scalar);
+	//return eyes + p3;
+}
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
 

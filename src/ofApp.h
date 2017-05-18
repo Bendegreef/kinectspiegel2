@@ -4,6 +4,7 @@
 #include "ofxKinectForWindows2.h"
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
+#include "ofxGui.h"
 
 class ofApp : public ofBaseApp{
 
@@ -56,5 +57,11 @@ class ofApp : public ofBaseApp{
 		void drawCoordinates(ofVec3f point);
 		ofVec3f calcScreen(ofVec3f eyes, ofVec3f reflection);
 		ofVec3f calcRefl(ofVec3f point);
+		ofVec3f scaleOnScreen(ofVec3f eyes, ofVec3f bodyPoint);
+
+		ofxFloatSlider yOffsetSlider;
+		ofxFloatSlider xOffsetSlider;
+		ofxFloatSlider scalar;
+		ofxPanel gui;
 		
 };
