@@ -5,6 +5,7 @@
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
 #include "ofxGui.h"
+#include "ofxAssimpModelLoader.h"
 
 class ofApp : public ofBaseApp{
 
@@ -47,9 +48,11 @@ class ofApp : public ofBaseApp{
 		ofVec3f headPosScreen;
 		ofVec3f headPosRefl;
 		ofVec3f headPosCamera;
+		ofVec3f lShPosScreenScale;
 		ofVec3f lShPosScreen;
 		ofVec3f lShPosRefl;
 		ofVec3f lShPos;
+		ofVec3f rShPosScreenScale;
 		ofVec3f rShPosScreen;
 		ofVec3f rShPosRefl;
 		ofVec3f rShPos;
@@ -62,6 +65,13 @@ class ofApp : public ofBaseApp{
 		ofxFloatSlider yOffsetSlider;
 		ofxFloatSlider xOffsetSlider;
 		ofxFloatSlider scalar;
+		ofxFloatSlider jurkScaleSlider;
 		ofxPanel gui;
+
+		float degX;
+		float degY;
+		float degZ;
+
+		ofxAssimpModelLoader jurk;
 		
 };

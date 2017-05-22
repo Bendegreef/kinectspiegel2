@@ -1,5 +1,4 @@
 #include "ofApp.h"
-
 using namespace ofxCv;
 
 //--------------------------------------------------------------
@@ -39,13 +38,19 @@ void ofApp::setup() {
 	gui.add(yOffsetSlider.setup("yOffset", -0.15, -0.5, 0.5));
 	gui.add(xOffsetSlider.setup("xOffset", 0, -0.5, 0.5));
 	gui.add(scalar.setup("scale", 1, 0.5, 1.5));
+	gui.add(jurkScaleSlider.setup("Jurk Scale", 0.001, 0.0005, 0.002));
+
+	jurk.loadModel("Dress 2.dae");
+	jurk.setScale(jurkScaleSlider, jurkScaleSlider, jurkScaleSlider);
+	jurk.setRotation(0, 90, 0, 1, 0);
+	jurk.setRotation(1, 180, 0, 0, 1);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 	kinect.update();
-
+	
 
 	ofVec3f headPosCamera = getHeadPos();
 	headPosCamera.y -= yOffsetSlider;
@@ -57,13 +62,14 @@ void ofApp::update() {
 	lShPos = getLeftShoulder();
 	lShPosRefl = calcRefl(lShPos);
 	lShPosScreen = calcScreen(headPos, lShPosRefl);
-	lShPosScreen = scaleOnScreen(headPosScreen, lShPosScreen);
+	lShPosScreenScale = scaleOnScreen(headPosScreen, lShPosScreen);
 
 	rShPos = getRightShoulder();
 	rShPosRefl = calcRefl(rShPos);
 	rShPosScreen = calcScreen(headPos, rShPosRefl);
-	rShPosScreen = scaleOnScreen(headPosScreen, rShPosScreen);
+	rShPosScreenScale = scaleOnScreen(headPosScreen, rShPosScreen);
 
+	
 
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
@@ -71,6 +77,12 @@ void ofApp::update() {
 	//headPosCamera.x = -headPosCamera.x;
 	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
+
+	//rShPosScreen
+
+	jurk.setRotation(2, degX, 1, 0, 0);
+	jurk.setRotation(3, degY, 0, 1, 1);
+	jurk.setRotation(4, degZ, 0, 0, 1);
 }
 
 void ofApp::drawScene(bool isPreview) {
@@ -128,9 +140,9 @@ void ofApp::drawScene(bool isPreview) {
 
 	
 	ofSetColor(255, 0, 0);
-	ofSphere(lShPosScreen, 0.01);
+	ofSphere(lShPosScreenScale, 0.01);
 	ofSetColor(0, 255, 0);
-	ofSphere(rShPosScreen, 0.01);
+	ofSphere(rShPosScreenScale, 0.01);
 	ofNoFill();
 	ofColor col(200, 100, 100);
 	for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
@@ -147,9 +159,11 @@ void ofApp::drawScene(bool isPreview) {
 		ofCurveVertex(vertex);
 	}
 	ofEndShape(false);
+	jurk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
+	jurk.drawFaces();
 	ofPopStyle();
 	
-	ofDisableDepthTest();
+	ofDisableDepthTest(); 
 	
 }
 //--------------------------------------------------------------
