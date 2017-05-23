@@ -35,13 +35,13 @@ void ofApp::setup() {
 		0.0f);
 
 	gui.setup();
-	gui.add(yOffsetSlider.setup("yOffset", -0.15, -0.5, 0.5));
-	gui.add(xOffsetSlider.setup("xOffset", 0, -0.5, 0.5));
-	gui.add(scalar.setup("scale", 1, 0.5, 1.5));
-	gui.add(jurkScaleSlider.setup("Jurk Scale", 0.001, 0.0005, 0.002));
+	gui.add(yOffsetSlider.setup("yOffset", 0.315, -0.5, 0.5));
+	gui.add(xOffsetSlider.setup("xOffset", 0.15, -0.5, 0.5));
+	gui.add(scalar.setup("scale", 0.5175, 0, 1.5));
+	//gui.add(jurkScaleSlider.setup("Jurk Scale", 0.0005375, 0.0005, 0.002));
 
 	jurk.loadModel("Dress 2.dae");
-	jurk.setScale(jurkScaleSlider, jurkScaleSlider, jurkScaleSlider);
+	
 	jurk.setRotation(0, 90, 0, 1, 0);
 	jurk.setRotation(1, 180, 0, 0, 1);
 
@@ -69,7 +69,7 @@ void ofApp::update() {
 	rShPosScreen = calcScreen(headPos, rShPosRefl);
 	rShPosScreenScale = scaleOnScreen(headPosScreen, rShPosScreen);
 
-	
+	jurk.setScale(scalar / 1000, scalar / 1000, scalar / 1000);
 
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
@@ -78,11 +78,6 @@ void ofApp::update() {
 	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
 
-	//rShPosScreen
-
-	jurk.setRotation(2, degX, 1, 0, 0);
-	jurk.setRotation(3, degY, 0, 1, 1);
-	jurk.setRotation(4, degZ, 0, 0, 1);
 }
 
 void ofApp::drawScene(bool isPreview) {
@@ -160,9 +155,29 @@ void ofApp::drawScene(bool isPreview) {
 	}
 	ofEndShape(false);
 	jurk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
-	jurk.drawFaces();
-	ofPopStyle();
 	
+	
+	
+	//https://forum.openframeworks.cc/t/rotate-3d-object-to-align-to-vector/5085/4
+	ofPushMatrix();
+	ofVec3f normal = rShPosScreenScale - lShPosScreenScale;
+	normal.normalize();
+	ofVec3f xAs(1, 0, 0);
+	ofVec3f axis = xAs.crossed(normal);
+	axis.normalize();
+	float angle = xAs.angle(normal);
+	ofPushMatrix();
+	//ofTranslate(0,0,0);
+	ofRotate(angle, axis.x, axis.y, axis.z);
+
+	jurk.drawFaces();
+	ofPopMatrix();
+	ofPopMatrix();
+	//float hoek = lShPosScreenScale.angle(rShPosScreenScale);
+	ofPopStyle();
+	//jurk.drawFaces();
+	cout << lShPosScreenScale.distance(rShPosScreenScale) << endl;
+
 	ofDisableDepthTest(); 
 	
 }

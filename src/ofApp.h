@@ -68,9 +68,7 @@ class ofApp : public ofBaseApp{
 		ofxFloatSlider jurkScaleSlider;
 		ofxPanel gui;
 
-		float degX;
-		float degY;
-		float degZ;
+		float angle;
 
 		ofxAssimpModelLoader jurk;
 		
