@@ -36,15 +36,22 @@ void ofApp::setup() {
 
 	gui.setup();
 	gui.add(yOffsetSlider.setup("yOffset", 0.315, -0.5, 0.5));
-	gui.add(xOffsetSlider.setup("xOffset", 0.15, -0.5, 0.5));
+	gui.add(xOffsetSlider.setup("xOffset", 0, -0.5, 0.5));
 	gui.add(scalar.setup("scale", 0.5175, 0, 1.5));
-	//gui.add(jurkScaleSlider.setup("Jurk Scale", 0.0005375, 0.0005, 0.002));
+	gui.add(jurkScaleSlider.setup("Jurk Scale", 0.0005375, 0.0005, 0.002));
 
 	jurk.loadModel("Dress 2.dae");
 	
 	jurk.setRotation(0, 90, 0, 1, 0);
 	jurk.setRotation(1, 180, 0, 0, 1);
 
+	debug = true;
+
+	ofSetFrameRate(24);
+
+	udpConnection.Create();
+	udpConnection.Bind(11999);
+	udpConnection.SetNonBlocking(true);
 }
 
 //--------------------------------------------------------------
@@ -70,6 +77,14 @@ void ofApp::update() {
 	rShPosScreenScale = scaleOnScreen(headPosScreen, rShPosScreen);
 
 	jurk.setScale(scalar / 1000, scalar / 1000, scalar / 1000);
+	ofVec2f linker2D(lShPos.x, lShPos.y);
+	ofVec2f rechter2D(rShPos.x, rShPos.y);
+	//float graden = linker2D.angle(rechter2D);
+	//float graden = (linker2D - rechter2D).getNormalized().angle(ofVec2f(0,0));
+	//float graden = 
+	//cout << graden << endl;
+	//jurk.setRotation(5, graden, 1, 0, 0);
+
 
 	while (headPositionHistory.size() > 50.0f) {
 		headPositionHistory.pop_front();
@@ -77,6 +92,18 @@ void ofApp::update() {
 	//headPosCamera.x = -headPosCamera.x;
 	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
+	
+	//UDP OSC
+
+	char udpMessage[100000];
+	udpConnection.Receive(udpMessage, 100000);
+	string message = udpMessage;
+	vector<string> result = ofSplitString(message, "f:");
+	/*for (int i = 0; i < result.size(); i++) {
+		cout << "message " + ofToString(i) + ": " + result[i] << endl;
+	}*/
+	cout << message << endl;
+	//cout << message.length() << endl;
 
 }
 
@@ -127,57 +154,62 @@ void ofApp::drawScene(bool isPreview) {
 
 	ofPushStyle();
 
-	drawCoordinates(headTrackedCamera.getPosition());
-	ofSphere(headPosRefl, 0.01);
-	drawCoordinates(headPosRefl);
-	ofSphere(headPosScreen, 0.01);
-	drawCoordinates(headPosScreen);
+	if (debug) {
+		drawCoordinates(headTrackedCamera.getPosition());
+		ofSphere(headPosRefl, 0.01);
+		drawCoordinates(headPosRefl);
+		ofSphere(headPosScreen, 0.01);
+		drawCoordinates(headPosScreen);
 
-	
-	ofSetColor(255, 0, 0);
-	ofSphere(lShPosScreenScale, 0.01);
-	ofSetColor(0, 255, 0);
-	ofSphere(rShPosScreenScale, 0.01);
-	ofNoFill();
-	ofColor col(200, 100, 100);
-	for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
+
+		ofSetColor(255, 0, 0);
+		ofSphere(lShPosScreenScale, 0.01);
+		ofSetColor(0, 255, 0);
+		ofSphere(rShPosScreenScale, 0.01);
+		ofNoFill();
+		ofColor col(200, 100, 100);
+	}
+	/*for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
 		col.setHue(int(-z * 100.0f + ofGetElapsedTimef() * 10.0f) % 360);
 		ofSetColor(col);
 		ofDrawRectangle(-windowWidth / 2.0f, -windowHeight / 2.0f, z, windowWidth, windowHeight);
-	}
+	}*/
 	ofEnableSmoothing();
 	ofSetColor(255);
 	ofSetLineWidth(5.0f);
-	ofBeginShape();
+	/*ofBeginShape();
 	for (unsigned int i = 0; i < headPositionHistory.size(); i++) {
 		ofPoint vertex(headPositionHistory[i].x, headPositionHistory[i].y, -float(headPositionHistory.size() - i) * 0.05f);
 		ofCurveVertex(vertex);
 	}
-	ofEndShape(false);
+	ofEndShape(false);*/
 	jurk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
 	
 	
-	
-	//https://forum.openframeworks.cc/t/rotate-3d-object-to-align-to-vector/5085/4
-	ofPushMatrix();
-	ofVec3f normal = rShPosScreenScale - lShPosScreenScale;
-	normal.normalize();
-	ofVec3f xAs(1, 0, 0);
-	ofVec3f axis = xAs.crossed(normal);
-	axis.normalize();
-	float angle = xAs.angle(normal);
-	ofPushMatrix();
-	//ofTranslate(0,0,0);
-	ofRotate(angle, axis.x, axis.y, axis.z);
-
-	jurk.drawFaces();
-	ofPopMatrix();
-	ofPopMatrix();
-	//float hoek = lShPosScreenScale.angle(rShPosScreenScale);
+	/*ofPushMatrix();
+	ofPushStyle();
+	ofSetColor(ofColor::green);
+	ofVec2f dirr = mouse - center;
+	dirr.normalize();
+	float angle = atan2(dirr.y, dirr.x);
+	ofTranslate(center);
+	ofRotateZ(ofRadToDeg(angle));
+	ofDrawLine(-100, 0, 100, 0);
 	ofPopStyle();
-	//jurk.drawFaces();
-	cout << lShPosScreenScale.distance(rShPosScreenScale) << endl;
-
+	ofPopMatrix();*/
+	ofPushMatrix();
+	ofVec2f lSh2(lShPosScreenScale.x, lShPosScreenScale.y);
+	ofVec2f rSh2(rShPosScreenScale.x,rShPosScreenScale.y);
+	ofVec2f dirr = rSh2 - lSh2;
+	dirr.normalize();
+	float angle = atan2(dirr.y, dirr.x);
+	ofTranslate(lSh2);
+	ofRotateZ(ofRadToDeg(angle));
+	jurk.setPosition(0,0,0);
+	jurk.setScale(jurkScaleSlider, jurkScaleSlider, jurkScaleSlider);
+	jurk.drawFaces();
+	ofPopMatrix();	
+	ofPopStyle();
 	ofDisableDepthTest(); 
 	
 }
@@ -224,6 +256,13 @@ void ofApp::draw() {
 		headTrackedCamera.end();
 	}
 	gui.draw();
+	/*ofVec2f center = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
+	ofVec2f mouse = ofVec2f(ofGetMouseX(), ofGetMouseY());
+
+	Color(ofColor::red);
+	ofLine(center, mouse);*/
+
+
 }
 
 ofVec3f ofApp::getHeadPos() {
@@ -329,11 +368,11 @@ void ofApp::keyPressed(int key) {
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
-	if (key = ' ') {
+	/*if (key = 'u') {
 		usePreview = !usePreview;
-	}
-	if (key = 'y') {
-		//yOffset += 0.1;
+	}*/
+	if (key = 'd') {
+		debug = !debug;
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "ofxOpenCv.h"
 #include "ofxGui.h"
 #include "ofxAssimpModelLoader.h"
+#include "ofxNetwork.h"
 
 class ofApp : public ofBaseApp{
 
@@ -26,6 +27,10 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		ofxUDPManager udpConnection;
+		ofTrueTypeFont mono;
+		ofTrueTypeFont monosm;
 
 		ofxKFW2::Device kinect;
 		ofVec3f headPos, windowTopLeft, windowBottomLeft, windowBottomRight;
@@ -71,5 +76,7 @@ class ofApp : public ofBaseApp{
 		float angle;
 
 		ofxAssimpModelLoader jurk;
+
+		bool debug;
 		
 };
