@@ -82,5 +82,11 @@ class ofApp : public ofBaseApp{
 		bool nu;
 		bool timer(float sec);
 		float startTimer;
+
+		//databaseconnectie
+		ofHttpResponse resp;
+		string basisURL;
+		vector<string> movieLocations;
+		vector<string> modelLocations;
 		
 };

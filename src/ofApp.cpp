@@ -40,7 +40,7 @@ void ofApp::setup() {
 	gui.add(scalar.setup("scale", 0.5175, 0, 1.5));
 	gui.add(jurkScaleSlider.setup("Jurk Scale", 0.0005375, 0.0005, 0.002));
 
-	jurk.loadModel("Dress 2.dae");
+	jurk.loadModel("hemd2.dae");
 	
 	jurk.setRotation(0, 90, 0, 1, 0);
 	jurk.setRotation(1, 180, 0, 0, 1);
@@ -54,6 +54,13 @@ void ofApp::setup() {
 	udpConnection.Create();
 	udpConnection.Bind(11999);
 	udpConnection.SetNonBlocking(true);
+	
+	basisURL = "http://localhost/kinectspiegel2/index.php";
+	resp = ofLoadURL(basisURL);
+	vector<string> moviesAndModels = ofSplitString(resp.data.getText(), "pp");
+	//cout << moviesAndModels[1];
+	movieLocations = ofSplitString(moviesAndModels[0], " ");
+	modelLocations = ofSplitString(moviesAndModels[1], " ");
 }
 
 //--------------------------------------------------------------
@@ -187,7 +194,7 @@ void ofApp::draw() {
 	case 1:
 		ofBackground(0, 0, 0);
 		ofDrawBitmapString("Analyzing", ofVec2f(ofGetWindowWidth() / 2 + (ofGetElapsedTimef() * 10), ofGetWindowHeight() / 2));
-		if (timer(10)) {
+		if (timer(5)) {
 			scherm += 1;
 		}
 		break;
