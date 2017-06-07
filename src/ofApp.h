@@ -78,5 +78,9 @@ class ofApp : public ofBaseApp{
 		ofxAssimpModelLoader jurk;
 
 		bool debug;
+		int scherm;
+		bool nu;
+		bool timer(float sec);
+		float startTimer;
 		
 };

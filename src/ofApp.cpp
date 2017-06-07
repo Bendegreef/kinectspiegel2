@@ -46,7 +46,9 @@ void ofApp::setup() {
 	jurk.setRotation(1, 180, 0, 0, 1);
 
 	debug = true;
-
+	scherm = 0;
+	nu = true;
+	startTimer = 0;
 	ofSetFrameRate(24);
 
 	udpConnection.Create();
@@ -57,7 +59,6 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
 	kinect.update();
-	
 
 	ofVec3f headPosCamera = getHeadPos();
 	headPosCamera.y -= yOffsetSlider;
@@ -79,31 +80,16 @@ void ofApp::update() {
 	jurk.setScale(scalar / 1000, scalar / 1000, scalar / 1000);
 	ofVec2f linker2D(lShPos.x, lShPos.y);
 	ofVec2f rechter2D(rShPos.x, rShPos.y);
-	//float graden = linker2D.angle(rechter2D);
-	//float graden = (linker2D - rechter2D).getNormalized().angle(ofVec2f(0,0));
-	//float graden = 
-	//cout << graden << endl;
-	//jurk.setRotation(5, graden, 1, 0, 0);
 
-
-	while (headPositionHistory.size() > 50.0f) {
-		headPositionHistory.pop_front();
-	}
-	//headPosCamera.x = -headPosCamera.x;
 	headTrackedCamera.setPosition(headPosCamera);
 	headTrackedCamera.setupOffAxisViewPortal(windowTopLeft, windowBottomLeft, windowBottomRight);
 	
 	//UDP OSC
-
 	char udpMessage[100000];
 	udpConnection.Receive(udpMessage, 100000);
 	string message = udpMessage;
 	vector<string> result = ofSplitString(message, "f:");
-	/*for (int i = 0; i < result.size(); i++) {
-		cout << "message " + ofToString(i) + ": " + result[i] << endl;
-	}*/
 	cout << message << endl;
-	//cout << message.length() << endl;
 
 }
 
@@ -146,9 +132,6 @@ void ofApp::drawScene(bool isPreview) {
 		window.setMode(OF_PRIMITIVE_LINE_STRIP);
 		window.draw();
 		glPointSize(3.0f);
-		window.drawVertices();
-		//
-		//--
 		ofPopStyle();
 	}
 
@@ -169,34 +152,14 @@ void ofApp::drawScene(bool isPreview) {
 		ofNoFill();
 		ofColor col(200, 100, 100);
 	}
-	/*for (float z = 0.0f; z > -40.0f; z -= 0.1f) {
-		col.setHue(int(-z * 100.0f + ofGetElapsedTimef() * 10.0f) % 360);
-		ofSetColor(col);
-		ofDrawRectangle(-windowWidth / 2.0f, -windowHeight / 2.0f, z, windowWidth, windowHeight);
-	}*/
 	ofEnableSmoothing();
 	ofSetColor(255);
 	ofSetLineWidth(5.0f);
-	/*ofBeginShape();
-	for (unsigned int i = 0; i < headPositionHistory.size(); i++) {
-		ofPoint vertex(headPositionHistory[i].x, headPositionHistory[i].y, -float(headPositionHistory.size() - i) * 0.05f);
-		ofCurveVertex(vertex);
-	}
-	ofEndShape(false);*/
+
 	jurk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
 	
-	
-	/*ofPushMatrix();
-	ofPushStyle();
-	ofSetColor(ofColor::green);
-	ofVec2f dirr = mouse - center;
-	dirr.normalize();
-	float angle = atan2(dirr.y, dirr.x);
-	ofTranslate(center);
-	ofRotateZ(ofRadToDeg(angle));
-	ofDrawLine(-100, 0, 100, 0);
-	ofPopStyle();
-	ofPopMatrix();*/
+	//Rotation around Z-axis
+
 	ofPushMatrix();
 	ofVec2f lSh2(lShPosScreenScale.x, lShPosScreenScale.y);
 	ofVec2f rSh2(rShPosScreenScale.x,rShPosScreenScale.y);
@@ -215,54 +178,61 @@ void ofApp::drawScene(bool isPreview) {
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
-	ofBackgroundGradient(ofColor(50), ofColor(0));
-	//------
-	//draw the scene
-	//
-	if (usePreview) {
-		previewCamera.begin();
+
+	switch (scherm) {
+	case 0:
+		ofBackground(0, 0, 0);
+		ofDrawBitmapString("Stand on the red circle and push the button", ofVec2f(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2));
+		break;
+	case 1:
+		ofBackground(0, 0, 0);
+		ofDrawBitmapString("Analyzing", ofVec2f(ofGetWindowWidth() / 2 + (ofGetElapsedTimef() * 10), ofGetWindowHeight() / 2));
+		if (timer(10)) {
+			scherm += 1;
+		}
+		break;
+	case 2:
+		ofBackgroundGradient(ofColor(50), ofColor(0));
+		//------
+		//draw the scene
+		//
+		if (usePreview) {
+			previewCamera.begin();
+		}
+		else {
+			headTrackedCamera.begin();
+		}
+
+		drawScene(usePreview);
+
+		if (usePreview) {
+			previewCamera.end();
+		}
+		else {
+			headTrackedCamera.end();
+		}
+
+
+		stringstream message;
+		message << "[SPACE] = User preview camera [" << (usePreview ? 'x' : ' ') << "]";
+
+		ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
+
+		if (usePreview) {
+			ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f);
+
+			ofPushStyle();
+			ofSetColor(0);
+			ofDrawRectangle(bottomLeft);
+			ofPopStyle();
+
+			headTrackedCamera.begin(bottomLeft);
+			drawScene(false);
+			headTrackedCamera.end();
+		}
+		gui.draw();
+		break;
 	}
-	else {
-		headTrackedCamera.begin();
-	}
-
-	drawScene(usePreview);
-
-	if (usePreview) {
-		previewCamera.end();
-	}
-	else {
-		headTrackedCamera.end();
-	}
-
-	//kinect.getColorSource()->draw(0, 0, 320, 240);
-
-
-	stringstream message;
-	message << "[SPACE] = User preview camera [" << (usePreview ? 'x' : ' ') << "]";
-
-	ofDrawBitmapString(message.str(), kinect.getColorSource()->getWidth() + 10, 20);
-
-	if (usePreview) {
-		ofRectangle bottomLeft(0, ofGetHeight() - 200.0f, 300.0f, 200.0f);
-
-		ofPushStyle();
-		ofSetColor(0);
-		ofDrawRectangle(bottomLeft);
-		ofPopStyle();
-
-		headTrackedCamera.begin(bottomLeft);
-		drawScene(false);
-		headTrackedCamera.end();
-	}
-	gui.draw();
-	/*ofVec2f center = ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2);
-	ofVec2f mouse = ofVec2f(ofGetMouseX(), ofGetMouseY());
-
-	Color(ofColor::red);
-	ofLine(center, mouse);*/
-
-
 }
 
 ofVec3f ofApp::getHeadPos() {
@@ -371,8 +341,15 @@ void ofApp::keyReleased(int key) {
 	/*if (key = 'u') {
 		usePreview = !usePreview;
 	}*/
-	if (key = 'd') {
+	if (key == 'd') {
 		debug = !debug;
+	}
+	if (key == 's') {
+		scherm += 1;
+	}
+	if (key == 'r') {
+		scherm = 0;
+		nu = true;
 	}
 }
 
@@ -398,14 +375,22 @@ ofVec3f ofApp::scaleOnScreen(ofVec3f eyes, ofVec3f bodypoint) {
 	length *= scalar;
 	p.normalize();
 	p *= length;
-	//p.scale(1.0f);
 	p += eyes;
 	return p;
-	//return (bodypoint - eyes).getScaled(1.0) + eyes;
-	//return bodypoint;
-	//ofVec3f p3 = eyes - bodypoint;
-	//p3.scale(scalar);
-	//return eyes + p3;
+}
+
+bool ofApp::timer(float sec) {
+	
+	if(nu){
+		startTimer = ofGetElapsedTimef();
+		nu = false;
+	}
+	if (ofGetElapsedTimef() - startTimer >= sec) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
