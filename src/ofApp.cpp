@@ -38,12 +38,12 @@ void ofApp::setup() {
 	gui.add(yOffsetSlider.setup("yOffset", 0.315, -0.5, 0.5));
 	gui.add(xOffsetSlider.setup("xOffset", 0, -0.5, 0.5));
 	gui.add(scalar.setup("scale", 0.5175, 0, 1.5));
-	gui.add(jurkScaleSlider.setup("Jurk Scale", 0.0005375, 0.0005, 0.002));
+	gui.add(jurkScaleSlider.setup("Kledingstuk Scale", 0.0005375, 0.0001, 0.001));
 
-	jurk.loadModel("hemd2.dae");
+	//
 	
-	jurk.setRotation(0, 90, 0, 1, 0);
-	jurk.setRotation(1, 180, 0, 0, 1);
+	kledingStuk.setRotation(0, 90, 0, 1, 0);
+	kledingStuk.setRotation(1, 180, 0, 0, 1);
 
 	debug = true;
 	scherm = 0;
@@ -61,6 +61,8 @@ void ofApp::setup() {
 	//cout << moviesAndModels[1];
 	movieLocations = ofSplitString(moviesAndModels[0], " ");
 	modelLocations = ofSplitString(moviesAndModels[1], " ");
+	cout << modelLocations[0] << endl;
+	cout << modelLocations[1] << endl;
 }
 
 //--------------------------------------------------------------
@@ -84,7 +86,7 @@ void ofApp::update() {
 	rShPosScreen = calcScreen(headPos, rShPosRefl);
 	rShPosScreenScale = scaleOnScreen(headPosScreen, rShPosScreen);
 
-	jurk.setScale(scalar / 1000, scalar / 1000, scalar / 1000);
+	//kledingStuk.setScale(scalar / 1500, scalar / 1500, scalar / 1500);
 	ofVec2f linker2D(lShPos.x, lShPos.y);
 	ofVec2f rechter2D(rShPos.x, rShPos.y);
 
@@ -94,9 +96,15 @@ void ofApp::update() {
 	//UDP OSC
 	char udpMessage[100000];
 	udpConnection.Receive(udpMessage, 100000);
-	string message = udpMessage;
-	vector<string> result = ofSplitString(message, "f:");
+	udpString = udpMessage;
+	if (!udpString.empty()) {
+		message = udpString;
+	}
+	
 	cout << message << endl;
+	
+
+	
 
 }
 
@@ -163,7 +171,7 @@ void ofApp::drawScene(bool isPreview) {
 	ofSetColor(255);
 	ofSetLineWidth(5.0f);
 
-	jurk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
+	kledingStuk.setPosition(lShPosScreenScale.x, lShPosScreenScale.y, 0);
 	
 	//Rotation around Z-axis
 
@@ -175,9 +183,9 @@ void ofApp::drawScene(bool isPreview) {
 	float angle = atan2(dirr.y, dirr.x);
 	ofTranslate(lSh2);
 	ofRotateZ(ofRadToDeg(angle));
-	jurk.setPosition(0,0,0);
-	jurk.setScale(jurkScaleSlider, jurkScaleSlider, jurkScaleSlider);
-	jurk.drawFaces();
+	kledingStuk.setPosition(0,0,0);
+	kledingStuk.setScale(jurkScaleSlider, jurkScaleSlider, jurkScaleSlider);
+	kledingStuk.drawFaces();
 	ofPopMatrix();	
 	ofPopStyle();
 	ofDisableDepthTest(); 
@@ -194,6 +202,9 @@ void ofApp::draw() {
 	case 1:
 		ofBackground(0, 0, 0);
 		ofDrawBitmapString("Analyzing", ofVec2f(ofGetWindowWidth() / 2 + (ofGetElapsedTimef() * 10), ofGetWindowHeight() / 2));
+		if (!kledingStuk.hasMeshes()) {
+			laadKledingstuk();
+		}
 		if (timer(5)) {
 			scherm += 1;
 		}
@@ -356,6 +367,9 @@ void ofApp::keyReleased(int key) {
 	}
 	if (key == 'r') {
 		scherm = 0;
+		kledingStuk.createEmptyModel();
+		kledingStuk.setRotation(0, 90, 0, 1, 0);
+		kledingStuk.setRotation(1, 180, 0, 0, 1);
 		nu = true;
 	}
 }
@@ -398,6 +412,13 @@ bool ofApp::timer(float sec) {
 	else {
 		return false;
 	}
+}
+
+void ofApp::laadKledingstuk() {
+	string modelLocation = modelLocations[ofToInt(message)];
+	//string modelLocation = "model/hemd1/hemd1.dae";
+	cout << modelLocation << endl;
+	kledingStuk.loadModel(modelLocation);
 }
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {

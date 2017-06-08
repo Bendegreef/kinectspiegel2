@@ -75,18 +75,22 @@ class ofApp : public ofBaseApp{
 
 		float angle;
 
-		ofxAssimpModelLoader jurk;
+		ofxAssimpModelLoader kledingStuk;
 
 		bool debug;
 		int scherm;
 		bool nu;
 		bool timer(float sec);
 		float startTimer;
+		string udpString;
+		string message;
 
 		//databaseconnectie
 		ofHttpResponse resp;
 		string basisURL;
 		vector<string> movieLocations;
 		vector<string> modelLocations;
+
+		void laadKledingstuk();
 		
 };
