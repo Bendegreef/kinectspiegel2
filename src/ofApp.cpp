@@ -1,5 +1,4 @@
 #include "ofApp.h"
-using namespace ofxCv;
 
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -49,7 +48,7 @@ void ofApp::setup() {
 	scherm = 0;
 	nu = true;
 	startTimer = 0;
-	ofSetFrameRate(24);
+	ofSetFrameRate(60);
 
 	udpConnection.Create();
 	udpConnection.Bind(11999);
@@ -63,6 +62,8 @@ void ofApp::setup() {
 	modelLocations = ofSplitString(moviesAndModels[1], " ");
 	cout << modelLocations[0] << endl;
 	cout << modelLocations[1] << endl;
+
+	oscSender.setup(HOST, PORT);
 }
 
 //--------------------------------------------------------------
@@ -202,8 +203,12 @@ void ofApp::draw() {
 	case 1:
 		ofBackground(0, 0, 0);
 		ofDrawBitmapString("Analyzing", ofVec2f(ofGetWindowWidth() / 2 + (ofGetElapsedTimef() * 10), ofGetWindowHeight() / 2));
+
 		if (!kledingStuk.hasMeshes()) {
 			laadKledingstuk();
+			ofxOscMessage m;
+			m.addStringArg(message);
+			oscSender.sendMessage(m, false);
 		}
 		if (timer(5)) {
 			scherm += 1;

@@ -2,11 +2,14 @@
 
 #include "ofMain.h"
 #include "ofxKinectForWindows2.h"
-#include "ofxCv.h"
-#include "ofxOpenCv.h"
 #include "ofxGui.h"
 #include "ofxAssimpModelLoader.h"
 #include "ofxNetwork.h"
+#include "ofxSpout.h"
+#include "ofxOsc.h"
+
+#define HOST "localhost"
+#define PORT 12345
 
 class ofApp : public ofBaseApp{
 
@@ -92,5 +95,7 @@ class ofApp : public ofBaseApp{
 		vector<string> modelLocations;
 
 		void laadKledingstuk();
+
+		ofxOscSender oscSender;
 		
 };

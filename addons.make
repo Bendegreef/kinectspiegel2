@@ -1,6 +1,5 @@
 ofxAssimpModelLoader
-ofxCv
 ofxGui
 ofxNetwork
-ofxOpenCv
-ofxRay
+ofxOsc
+ofxSpout
